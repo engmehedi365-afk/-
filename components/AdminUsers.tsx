@@ -1,12 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../supabase';
-import { User, Trash2, ShieldCheck, Mail, Calendar } from 'lucide-react';
+import { User, Trash2, ShieldCheck, Mail, Calendar, KeyRound } from 'lucide-react';
 import { getBengaliDate } from '../utils/helpers';
 
 interface Profile {
   id: string;
   full_name: string;
+  email?: string;
   role: string;
   updated_at: string;
 }
@@ -32,8 +33,6 @@ const AdminUsers: React.FC = () => {
        return;
     }
     if (confirm('আপনি কি নিশ্চিত যে এই ইউজারকে ডিলিট করতে চান? তার সকল তথ্য মুছে যাবে।')) {
-      // In a real app, you would use a service role or edge function to delete auth user
-      // Here we rely on cascade delete set in DB if it exists, or just delete profile
       const { error } = await supabase.from('profiles').delete().eq('id', id);
       if (!error) {
         setUsers(prev => prev.filter(u => u.id !== id));
@@ -43,7 +42,19 @@ const AdminUsers: React.FC = () => {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-emerald-600">ইউজার তালিকা লোড হচ্ছে...</div>;
+  const handleResetPassword = async (email?: string) => {
+    if (!email) {
+      alert('এই ইউজারের ইমেইল পাওয়া যায়নি।');
+      return;
+    }
+    if (confirm(`আপনি কি এই ইউজারের ইমেইলে (${email}) পাসওয়ার্ড রিসেট লিংক পাঠাতে চান?`)) {
+      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      if (!error) alert('পাসওয়ার্ড রিসেট লিংক সফলভাবে পাঠানো হয়েছে।');
+      else alert('ত্রুটি: ' + error.message);
+    }
+  };
+
+  if (loading) return <div className="p-8 text-center text-emerald-600 font-bold">ইউজার তালিকা লোড হচ্ছে...</div>;
 
   return (
     <div className="space-y-6">
@@ -51,7 +62,7 @@ const AdminUsers: React.FC = () => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {users.map(u => (
-          <div key={u.id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden">
+          <div key={u.id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative overflow-hidden flex flex-col h-full">
             {u.role === 'super_admin' && (
               <div className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] px-3 py-1 rounded-bl-xl font-bold">
                 SUPER ADMIN
@@ -61,25 +72,42 @@ const AdminUsers: React.FC = () => {
               <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mr-4">
                 <User className="w-6 h-6" />
               </div>
-              <div>
-                <h4 className="font-bold text-gray-800">{u.full_name || 'নামহীন ইউজার'}</h4>
-                <p className="text-xs text-gray-400">ID: {u.id.slice(0,8)}...</p>
+              <div className="overflow-hidden">
+                <h4 className="font-bold text-gray-800 truncate">{u.full_name || 'নামহীন ইউজার'}</h4>
+                <p className="text-xs text-gray-400 truncate">ID: {u.id.slice(0,8)}...</p>
               </div>
             </div>
 
-            <div className="space-y-2 text-sm text-gray-600 mb-6">
-              <div className="flex items-center"><ShieldCheck className="w-4 h-4 mr-2 text-gray-400"/> রোল: {u.role === 'super_admin' ? 'সুপার এডমিন' : 'সাধারণ ইউজার'}</div>
-              <div className="flex items-center"><Calendar className="w-4 h-4 mr-2 text-gray-400"/> জয়েনিং: {getBengaliDate(u.updated_at)}</div>
+            <div className="space-y-3 text-sm text-gray-600 mb-6 flex-1">
+              <div className="flex items-center text-emerald-600 font-medium">
+                <Mail className="w-4 h-4 mr-2" />
+                <span className="truncate">{u.email || 'ইমেইল পাওয়া যায়নি'}</span>
+              </div>
+              <div className="flex items-center">
+                <ShieldCheck className="w-4 h-4 mr-2 text-gray-400"/> 
+                রোল: {u.role === 'super_admin' ? 'সুপার এডমিন' : 'সাধারণ ইউজার'}
+              </div>
+              <div className="flex items-center">
+                <Calendar className="w-4 h-4 mr-2 text-gray-400"/> 
+                জয়েনিং: {getBengaliDate(u.updated_at)}
+              </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 mt-auto">
+              <button 
+                onClick={() => handleResetPassword(u.email)}
+                className="w-full flex items-center justify-center py-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all font-medium text-sm"
+              >
+                <KeyRound className="w-4 h-4 mr-2" />
+                পাসওয়ার্ড রিসেট পাঠান
+              </button>
               <button 
                 onClick={() => handleDelete(u.id, u.role)}
                 disabled={u.role === 'super_admin'}
-                className="flex-1 flex items-center justify-center py-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center py-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed font-medium text-sm"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                ডিলিট করুন
+                ইউজার ডিলিট করুন
               </button>
             </div>
           </div>

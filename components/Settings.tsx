@@ -26,7 +26,9 @@ const Settings: React.FC<SettingsProps> = ({ profile, onUpdateProfile, onLogout 
     });
     
     if (!error) {
-      onUpdateProfile({ name });
+      // Fix: Argument of type '{ name: string; }' is not assignable to parameter of type 'UserProfile'.
+      // Spreading the current profile ensures 'id' and 'role' are present in the object passed to onUpdateProfile.
+      onUpdateProfile({ ...profile, name });
       alert('প্রোফাইল সফলভাবে আপডেট হয়েছে!');
     } else {
       alert(error.message);
