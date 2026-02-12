@@ -1,11 +1,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+// আপনার দেওয়া Supabase প্রজেক্ট ডিটেইলস
+const supabaseUrl = 'https://wxzneqlupfrczpyvhogm.supabase.co';
+const supabaseAnonKey = 'sb_publishable_92Sy9xwBvcVhAxtuGdbGLg_-kXGl4GN';
 
-// We export the supabase client only if the required keys are present.
-// Otherwise, we export null to be handled gracefully by the components.
-export const supabase = (supabaseUrl && supabaseAnonKey) 
-  ? createClient(supabaseUrl, supabaseAnonKey) 
-  : null as any;
+// Supabase ক্লায়েন্ট তৈরি
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

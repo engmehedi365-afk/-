@@ -11,6 +11,7 @@ import Auth from './components/Auth';
 import AdminDashboard from './components/AdminDashboard';
 import AdminUsers from './components/AdminUsers';
 import AdminTransactions from './components/AdminTransactions';
+import CheckoutForm from './components/CheckoutForm';
 import { Transaction, UserProfile, View } from './types';
 import { AlertCircle } from 'lucide-react';
 
@@ -156,6 +157,7 @@ const App: React.FC = () => {
       case 'admin_users': return <AdminUsers />;
       case 'admin_transactions': return <AdminTransactions transactions={transactions} onDelete={handleDeleteTransaction} />;
       case 'dashboard': return <Dashboard transactions={transactions.filter(t => t.user_id === session.user.id)} />;
+      case 'checkout': return <CheckoutForm />;
       case 'income':
         return (
           <TransactionForm 

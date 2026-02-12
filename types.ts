@@ -11,7 +11,20 @@ export interface Transaction {
   date: string;
   note: string;
   created_at?: string;
-  profiles?: { full_name: string }; // For admin view joins
+  profiles?: { full_name: string };
+}
+
+export interface Order {
+  id?: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  street_address: string;
+  city: string;
+  zip_code: string;
+  product_name: string;
+  total_amount: number;
+  created_at?: string;
 }
 
 export interface UserProfile {
@@ -22,7 +35,7 @@ export interface UserProfile {
   created_at?: string;
 }
 
-export type View = 'dashboard' | 'income' | 'expense' | 'list' | 'reports' | 'settings' | 'admin_dashboard' | 'admin_users' | 'admin_transactions';
+export type View = 'dashboard' | 'income' | 'expense' | 'list' | 'reports' | 'settings' | 'admin_dashboard' | 'admin_users' | 'admin_transactions' | 'checkout';
 
 export interface Category {
   label: string;
