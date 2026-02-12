@@ -1,24 +1,18 @@
 
-import React, { useMemo, useEffect, useState } from 'react';
-import { Transaction } from '../types';
+import React, { useMemo } from 'react';
+import { Transaction, UserProfile } from '../types';
 import { formatCurrency } from '../utils/helpers';
 import { Users, CreditCard, TrendingUp, TrendingDown } from 'lucide-react';
-import { supabase } from '../supabase';
 
+// Fix: Added profiles to interface to resolve App.tsx line 109 error
 interface AdminDashboardProps {
   transactions: Transaction[];
+  profiles: UserProfile[];
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions }) => {
-  const [totalUsers, setTotalUsers] = useState(0);
-
-  useEffect(() => {
-    const fetchUserCount = async () => {
-      const { count } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-      setTotalUsers(count || 0);
-    };
-    fetchUserCount();
-  }, []);
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ transactions, profiles }) => {
+  // Fix: Use profiles prop directly instead of Supabase call (which is now null)
+  const totalUsers = profiles.length;
 
   const stats = useMemo(() => {
     const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);

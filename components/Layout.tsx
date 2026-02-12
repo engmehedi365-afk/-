@@ -1,23 +1,22 @@
 
 import React from 'react';
 import { View, UserProfile } from '../types';
-import { LayoutDashboard, PlusCircle, MinusCircle, List, BarChart3, Settings, LogOut, Users, ShieldAlert, ShoppingBag } from 'lucide-react';
-import { supabase } from '../supabase';
+import { LayoutDashboard, PlusCircle, MinusCircle, List, BarChart3, Settings, LogOut, Users, ShieldAlert } from 'lucide-react';
 
 interface LayoutProps {
   children: React.ReactNode;
   activeView: View;
   onViewChange: (view: View) => void;
   profile: UserProfile;
+  onLogout: () => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange, profile }) => {
+const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange, profile, onLogout }) => {
   const isAdmin = profile.role === 'super_admin';
   const LOGO_SRC = "655e3d84-7ff2-45e5-aa74-04db97534e01.png";
 
   const userItems = [
     { id: 'dashboard', label: 'ড্যাশবোর্ড', icon: LayoutDashboard },
-    { id: 'checkout', label: 'অর্ডার করুন', icon: ShoppingBag },
     { id: 'income', label: 'আয় যুক্ত করুন', icon: PlusCircle },
     { id: 'expense', label: 'ব্যয় যুক্ত করুন', icon: MinusCircle },
     { id: 'list', label: 'হিসাব তালিকা', icon: List },
@@ -33,8 +32,8 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange, pro
 
   const navItems = isAdmin ? [...adminItems, ...userItems] : userItems;
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    onLogout();
   };
 
   return (
@@ -45,7 +44,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange, pro
           <img 
             src={LOGO_SRC} 
             alt="হিসাব চাই" 
-            className="h-24 w-auto object-contain mb-3"
+            className="h-20 w-auto object-contain mb-3"
             onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
           />
           <h2 className="text-2xl font-black text-gray-800 tracking-tighter">হিসাব চাই</h2>
@@ -70,9 +69,13 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange, pro
         </nav>
 
         <div className="p-6 border-t border-gray-50">
-          <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-[1.5rem] mb-4 border border-gray-100/50 shadow-inner">
-            <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-black shadow-sm shrink-0">
-              {profile.name.charAt(0)}
+          <div className="flex items-center gap-3 p-4 bg-gray-50/50 rounded-[1.5rem] mb-4 border border-gray-100/50 shadow-inner overflow-hidden">
+            <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-black shadow-sm shrink-0 overflow-hidden">
+              {profile.avatar ? (
+                <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+              ) : (
+                profile.name.charAt(0)
+              )}
             </div>
             <div className="overflow-hidden">
               <p className="text-sm font-bold text-gray-800 truncate">{profile.name}</p>
@@ -95,8 +98,12 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onViewChange, pro
           <img src={LOGO_SRC} alt="হিসাব চাই" className="h-10 w-auto object-contain" />
           <h2 className="font-black text-lg text-gray-800 tracking-tight">হিসাব চাই</h2>
         </div>
-        <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-black shadow-sm border-2 border-white">
-          {profile.name.charAt(0)}
+        <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xs font-black shadow-sm border-2 border-white overflow-hidden">
+          {profile.avatar ? (
+            <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+          ) : (
+            profile.name.charAt(0)
+          )}
         </div>
       </header>
 
